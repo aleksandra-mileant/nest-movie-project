@@ -7,6 +7,7 @@ import {
   Delete,
   Patch,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import {
@@ -14,11 +15,14 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBadRequestResponse,
+  ApiParam,
 } from '@nestjs/swagger';
 import { GenreOfMovies, MoviesModel } from 'src/movies/movies.model';
 import { CreateMovieDto } from 'src/movies/dto/create-movie.dto';
 import { UpdateMovieDto } from 'src/movies/dto/update-movie.dto';
 import { MovieResponseDto } from 'src/movies/dto/movie-response.dto';
+import { UserRoles } from 'src/users/users.model';
+import { JwtGuard } from 'src/auth/quards/jwt.guard';
 
 @ApiTags('movies')
 @Controller('movies')
@@ -45,11 +49,14 @@ export class MoviesController {
     description: 'Return a movie.',
     type: MovieResponseDto,
   })
-  async findOne(@Param('id') id: number): Promise<MoviesModel | null> {
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<MoviesModel | null> {
     return this.moviesService.getOne(id);
   }
 
   @Get('/genre/:genre')
+  @ApiParam({ name: 'genre', required: true, enum: UserRoles })
   @ApiOperation({ summary: 'Get movies by genre' })
   @ApiResponse({
     status: 200,
@@ -76,6 +83,7 @@ export class MoviesController {
     return this.moviesService.create(createMovieDto);
   }
 
+  @UseGuards(JwtGuard)
   @Patch(':id')
   @ApiOperation({ summary: 'Update a movie by id' })
   @ApiResponse({
@@ -90,6 +98,7 @@ export class MoviesController {
     return this.moviesService.update(id, updateMovieDto);
   }
 
+  @UseGuards(JwtGuard)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a movie by id' })
   @ApiResponse({
