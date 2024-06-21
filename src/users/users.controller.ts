@@ -58,7 +58,7 @@ export class UsersController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
-  ): Promise<UsersModel | null> {
+  ): Promise<Omit<UsersModel, 'password'> | null> {
     return this.userService.update(id, updateUserDto);
   }
 

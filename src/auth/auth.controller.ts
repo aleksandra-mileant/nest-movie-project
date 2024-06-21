@@ -6,11 +6,15 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersModel } from 'src/users/users.model';
 import { LoginResponseDto } from 'src/auth/dto/login-response.dto';
 import { AuthDto } from 'src/auth/dto/auth.dto';
+import { UsersService } from 'src/users/users.service';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Register a new user' })
@@ -21,8 +25,8 @@ export class AuthController {
   })
   async register(
     @Body() createUserDto: CreateUserDto,
-  ): Promise<UsersModel | null> {
-    return this.authService.register(createUserDto);
+  ): Promise<Omit<UsersModel, 'password'> | null> {
+    return this.usersService.create(createUserDto);
   }
 
   @Post('login')
