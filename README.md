@@ -6,13 +6,17 @@
 
 ## Features
 
-- Create, update, delete movies
-- Retrieve all movies or a single movie by ID
-- Search movies by genre
+- Create, update, delete lists
+- Retrieve all items or a single item by ID
+- Search by params, query
 - Input validation and error handling
 - Swagger API documentation
 
 ## Endpoints
+
+- POST ```/auth/register```
+- POST ```/auth/login```
+
 
 - GET ```/movies```
 - GET ```/movies/:id```
@@ -20,6 +24,23 @@
 - PATCH ```/movies/:id```
 - DELETE ```/movies/:id```
 - GET ```/movies/genre/:genre```
+- GET ```/movies/search?title={title}```
+
+
+- GET ```/users```
+- GET ```/users?role={role}```
+- GET ```/users/:id```
+- PATCH ```/users/:id```
+- DELETE ```/users/:id```
+
+
+- GET ```/reviews```
+- GET ```/reviews/:id```
+- POST ```/reviews```
+- PATCH ```/reviews/:id```
+- DELETE ```/reviews/:id```
+- GET ```/reviews/user/:userId```
+- GET ```/reviews/movie/:movieId```
 
 ## Prerequisites
 

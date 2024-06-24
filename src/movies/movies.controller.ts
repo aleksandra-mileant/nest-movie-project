@@ -75,6 +75,19 @@ export class MoviesController {
     return this.moviesService.getByGender(genre, { page, limit });
   }
 
+  @Get('/search')
+  @ApiOperation({ summary: 'Search movies by title' })
+  @ApiQuery({ name: 'title', required: true, type: String })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiPaginatedResponse(MovieResponseDto, 'Return movies by title.')
+  async searchByTitle(
+    @Query('title') title: string,
+    @Query() { page, limit }: PaginationParamsDto,
+  ): Promise<PaginatedResultDto<MoviesModel>> {
+    return this.moviesService.searchByTitle(title, { page, limit });
+  }
+
   @Post()
   @ApiOperation({ summary: 'Create a movie' })
   @ApiResponse({

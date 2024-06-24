@@ -29,6 +29,7 @@ export class MoviesModel extends Model<MoviesModel> {
   })
   genre: GenreOfMovies;
 
+  // один фильм может иметь множество отзывов.
   @HasMany(() => ReviewModel)
   reviews: ReviewModel[];
 }

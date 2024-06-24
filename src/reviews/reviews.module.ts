@@ -3,11 +3,15 @@ import { ReviewsService } from './reviews.service';
 import { ReviewsController } from './reviews.controller';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ReviewModel } from 'src/reviews/reviews.model';
-import { UsersModel } from 'src/users/users.model';
-import { MoviesModel } from 'src/movies/movies.model';
+import { MoviesModule } from 'src/movies/movies.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
-  imports: [SequelizeModule.forFeature([ReviewModel, UsersModel, MoviesModel])],
+  imports: [
+    SequelizeModule.forFeature([ReviewModel]),
+    MoviesModule,
+    UsersModule,
+  ],
   providers: [ReviewsService],
   controllers: [ReviewsController],
 })

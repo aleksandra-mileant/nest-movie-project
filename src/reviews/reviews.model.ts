@@ -16,6 +16,7 @@ export class ReviewModel extends Model<ReviewModel> {
   @Column
   rating: number;
 
+  // Этот столбец userId является внешним ключом, который указывает на идентификатор пользователя, связанного с этим отзывом.
   @ForeignKey(() => UsersModel)
   @Column
   userId: number;
@@ -24,6 +25,7 @@ export class ReviewModel extends Model<ReviewModel> {
   @Column
   movieId: number;
 
+  // Указывает на то, что каждый отзыв принадлежит одному пользователю.
   @BelongsTo(() => UsersModel)
   user: UsersModel;
 

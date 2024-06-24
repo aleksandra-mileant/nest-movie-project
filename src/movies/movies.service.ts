@@ -8,6 +8,7 @@ import { ReviewModel } from 'src/reviews/reviews.model';
 import { PaginatedResultDto } from 'src/common/dto/paginated-result.dto';
 import { paginate } from 'src/common/utils/pagination.util';
 import { PaginationParamsDto } from 'src/common/dto/pagination-params.dto';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class MoviesService {
@@ -54,6 +55,26 @@ export class MoviesService {
       this.movieModel,
       {
         where: { genre },
+        include: [ReviewModel],
+        order: [['createdAt', 'DESC']],
+      },
+      page,
+      limit,
+    );
+  }
+
+  async searchByTitle(
+    title: string,
+    { page, limit }: PaginationParamsDto,
+  ): Promise<PaginatedResultDto<MoviesModel>> {
+    return paginate(
+      this.movieModel,
+      {
+        where: {
+          title: {
+            [Op.like]: `%${title}%`,
+          },
+        },
         include: [ReviewModel],
         order: [['createdAt', 'DESC']],
       },
