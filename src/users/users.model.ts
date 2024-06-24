@@ -1,4 +1,5 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
+import { ReviewModel } from 'src/reviews/reviews.model';
 
 export enum UserRoles {
   Admin = 'admin',
@@ -24,4 +25,7 @@ export class UsersModel extends Model<UsersModel> {
     allowNull: false,
   })
   role: UserRoles;
+
+  @HasMany(() => ReviewModel)
+  reviews: ReviewModel[];
 }

@@ -83,7 +83,7 @@ export class MoviesController {
     return this.moviesService.create(createMovieDto);
   }
 
-  @UseGuards(JwtGuard)
+  // @UseGuards(JwtGuard)
   @Patch(':id')
   @ApiOperation({ summary: 'Update a movie by id' })
   @ApiResponse({

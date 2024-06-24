@@ -7,6 +7,7 @@ import {
   MOVIES_BY_GENRE_NOT_FOUND_ERROR,
   MOVIES_NOT_FOUND_ERROR,
 } from 'src/movies/movies.constants';
+import { ReviewModel } from 'src/reviews/reviews.model';
 
 @Injectable()
 export class MoviesService {
@@ -16,7 +17,10 @@ export class MoviesService {
   ) {}
 
   async findAll(): Promise<MoviesModel[]> {
-    return this.movieModel.findAll();
+    return this.movieModel.findAll({
+      include: [ReviewModel],
+      order: [['createdAt', 'DESC']],
+    });
   }
 
   async getOne(id: number): Promise<MoviesModel | null> {
@@ -24,6 +28,7 @@ export class MoviesService {
       where: {
         id,
       },
+      include: [ReviewModel],
     });
 
     if (!movie) {
@@ -38,6 +43,8 @@ export class MoviesService {
       where: {
         genre,
       },
+      include: [ReviewModel],
+      order: [['createdAt', 'DESC']],
     });
 
     if (movies.length === 0) {

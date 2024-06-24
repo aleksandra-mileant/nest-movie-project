@@ -23,6 +23,7 @@ export class UsersService {
       attributes: {
         exclude: ['password'],
       },
+      order: [['createdAt', 'DESC']],
     });
   }
 
@@ -55,6 +56,7 @@ export class UsersService {
       attributes: {
         exclude: ['password'],
       },
+      order: [['createdAt', 'DESC']],
     });
   }
 

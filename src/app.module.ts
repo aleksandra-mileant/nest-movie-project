@@ -9,6 +9,8 @@ import { MoviesModel } from 'src/movies/movies.model';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { UsersModel } from 'src/users/users.model';
+import { ReviewsModule } from './reviews/reviews.module';
+import { ReviewModel } from 'src/reviews/reviews.model';
 
 @Module({
   imports: [
@@ -25,11 +27,12 @@ import { UsersModel } from 'src/users/users.model';
       database: process.env.DATABASE_NAME,
       autoLoadModels: true,
       synchronize: true,
-      models: [MoviesModel, UsersModel],
+      models: [MoviesModel, UsersModel, ReviewModel],
     }),
     MoviesModule,
     AuthModule,
     UsersModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
