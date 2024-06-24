@@ -6,6 +6,11 @@ import { MoviesModule } from './movies/movies.module';
 import { ConfigModule } from '@nestjs/config';
 import { ServerConfig } from 'src/configs/server.config';
 import { MoviesModel } from 'src/movies/movies.model';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { UsersModel } from 'src/users/users.model';
+import { ReviewsModule } from './reviews/reviews.module';
+import { ReviewModel } from 'src/reviews/reviews.model';
 
 @Module({
   imports: [
@@ -22,9 +27,12 @@ import { MoviesModel } from 'src/movies/movies.model';
       database: process.env.DATABASE_NAME,
       autoLoadModels: true,
       synchronize: true,
-      models: [MoviesModel],
+      models: [MoviesModel, UsersModel, ReviewModel],
     }),
     MoviesModule,
+    AuthModule,
+    UsersModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

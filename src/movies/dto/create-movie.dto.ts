@@ -18,7 +18,7 @@ export class CreateMovieDto {
 
   @IsNotEmpty()
   @IsString()
-  @MinLength(3, { message: 'Description must have atl east 3 characters.' })
+  @MinLength(3, { message: 'Description must have at least 3 characters.' })
   @ApiProperty({
     example: 'Description of the movie',
     description: 'The description of the movie',

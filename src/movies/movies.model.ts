@@ -1,4 +1,5 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, Model, Table, HasMany } from 'sequelize-typescript';
+import { ReviewModel } from 'src/reviews/reviews.model';
 
 export enum GenreOfMovies {
   Action = 'action',
@@ -27,4 +28,8 @@ export class MoviesModel extends Model<MoviesModel> {
     allowNull: false,
   })
   genre: GenreOfMovies;
+
+  // один фильм может иметь множество отзывов.
+  @HasMany(() => ReviewModel)
+  reviews: ReviewModel[];
 }
