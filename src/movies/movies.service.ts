@@ -3,11 +3,11 @@ import { InjectModel } from '@nestjs/sequelize';
 import { GenreOfMovies, MoviesModel } from 'src/movies/movies.model';
 import { CreateMovieDto } from 'src/movies/dto/create-movie.dto';
 import { UpdateMovieDto } from 'src/movies/dto/update-movie.dto';
-import {
-  MOVIES_BY_GENRE_NOT_FOUND_ERROR,
-  MOVIES_NOT_FOUND_ERROR,
-} from 'src/movies/movies.constants';
+import { MOVIES_NOT_FOUND_ERROR } from 'src/movies/movies.constants';
 import { ReviewModel } from 'src/reviews/reviews.model';
+import { PaginatedResultDto } from 'src/common/dto/paginated-result.dto';
+import { paginate } from 'src/common/utils/pagination.util';
+import { PaginationParamsDto } from 'src/common/dto/pagination-params.dto';
 
 @Injectable()
 export class MoviesService {
@@ -16,11 +16,19 @@ export class MoviesService {
     private readonly movieModel: typeof MoviesModel,
   ) {}
 
-  async findAll(): Promise<MoviesModel[]> {
-    return this.movieModel.findAll({
-      include: [ReviewModel],
-      order: [['createdAt', 'DESC']],
-    });
+  async findAll({
+    page,
+    limit,
+  }: PaginationParamsDto): Promise<PaginatedResultDto<MoviesModel>> {
+    return paginate(
+      this.movieModel,
+      {
+        order: [['createdAt', 'DESC']],
+        include: [ReviewModel],
+      },
+      page,
+      limit,
+    );
   }
 
   async getOne(id: number): Promise<MoviesModel | null> {
@@ -38,20 +46,20 @@ export class MoviesService {
     return movie;
   }
 
-  async getByGender(genre: GenreOfMovies): Promise<MoviesModel[] | []> {
-    const movies = await this.movieModel.findAll({
-      where: {
-        genre,
+  async getByGender(
+    genre: GenreOfMovies,
+    { page, limit }: PaginationParamsDto,
+  ): Promise<PaginatedResultDto<MoviesModel>> {
+    return paginate(
+      this.movieModel,
+      {
+        where: { genre },
+        include: [ReviewModel],
+        order: [['createdAt', 'DESC']],
       },
-      include: [ReviewModel],
-      order: [['createdAt', 'DESC']],
-    });
-
-    if (movies.length === 0) {
-      throw new NotFoundException(MOVIES_BY_GENRE_NOT_FOUND_ERROR);
-    }
-
-    return movies;
+      page,
+      limit,
+    );
   }
 
   async create(createMovieDto: CreateMovieDto): Promise<MoviesModel | null> {

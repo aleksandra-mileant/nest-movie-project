@@ -7,12 +7,17 @@ import {
   ParseIntPipe,
   Patch,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from 'src/users/users.service';
 import { UserRoles, UsersModel } from 'src/users/users.model';
 import { UserResponceDto } from 'src/users/dto/user-responce.dto';
 import { UpdateUserDto } from 'src/users/dto/update-user.dto';
+import { PaginationParamsDto } from 'src/common/dto/pagination-params.dto';
+import { PaginatedResultDto } from 'src/common/dto/paginated-result.dto';
+import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
+import { JwtGuard } from 'src/auth/quards/jwt.guard';
 
 @ApiTags('users')
 @Controller('users')
@@ -22,17 +27,20 @@ export class UsersController {
   @Get()
   @ApiOperation({ summary: 'Get all users or filter by role' })
   @ApiQuery({ name: 'role', required: false, enum: UserRoles })
-  @ApiResponse({
-    status: 200,
-    description: 'Return all users or users with the specified role.',
-    type: UserResponceDto,
-    isArray: true,
-  })
-  async findAll(@Query('role') role?: UserRoles): Promise<UsersModel[]> {
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiPaginatedResponse(
+    UserResponceDto,
+    'Return all users or users with the specified role.',
+  )
+  async findAll(
+    @Query('role') role?: UserRoles,
+    @Query() paginationParams?: PaginationParamsDto,
+  ): Promise<PaginatedResultDto<UsersModel>> {
     if (role) {
-      return this.userService.getByRole(role);
+      return this.userService.getByRole(role, paginationParams);
     }
-    return this.userService.findAll();
+    return this.userService.findAll(paginationParams);
   }
 
   @Get(':id')
@@ -62,6 +70,7 @@ export class UsersController {
     return this.userService.update(id, updateUserDto);
   }
 
+  @UseGuards(JwtGuard)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a user by id' })
   @ApiResponse({

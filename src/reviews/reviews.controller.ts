@@ -7,13 +7,19 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ReviewsService } from 'src/reviews/reviews.service';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ReviewModel } from 'src/reviews/reviews.model';
 import { CreateReviewDto } from 'src/reviews/dto/create-review.dto';
 import { UpdateReviewDto } from 'src/reviews/dto/update-review.dto';
 import { ReviewResponseDto } from 'src/reviews/dto/review-response.dto';
+import { PaginationParamsDto } from 'src/common/dto/pagination-params.dto';
+import { PaginatedResultDto } from 'src/common/dto/paginated-result.dto';
+import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
+import { JwtGuard } from 'src/auth/quards/jwt.guard';
 
 @ApiTags('reviews')
 @Controller('reviews')
@@ -22,14 +28,13 @@ export class ReviewsController {
 
   @Get()
   @ApiOperation({ summary: 'Get all reviews' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return all reviews.',
-    type: ReviewResponseDto,
-    isArray: true,
-  })
-  async findAll(): Promise<ReviewModel[]> {
-    return this.reviewsService.findAll();
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiPaginatedResponse(ReviewResponseDto, 'Return all reviews.')
+  async findAll(
+    @Query() { page, limit }: PaginationParamsDto,
+  ): Promise<PaginatedResultDto<ReviewModel>> {
+    return this.reviewsService.findAll({ page, limit });
   }
 
   @Get(':id')
@@ -47,30 +52,32 @@ export class ReviewsController {
 
   @Get('movie/:movieId')
   @ApiOperation({ summary: 'Get reviews by movie id' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return reviews for a specific movie.',
-    type: ReviewResponseDto,
-    isArray: true,
-  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiPaginatedResponse(
+    ReviewResponseDto,
+    'Return reviews for a specific movie.',
+  )
   async findByMovieId(
     @Param('movieId', ParseIntPipe) movieId: number,
-  ): Promise<ReviewModel[]> {
-    return this.reviewsService.getByMovieId(movieId);
+    @Query() { page, limit }: PaginationParamsDto,
+  ): Promise<PaginatedResultDto<ReviewModel>> {
+    return this.reviewsService.getByMovieId(movieId, { page, limit });
   }
 
   @Get('user/:userId')
   @ApiOperation({ summary: 'Get reviews by user id' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return reviews for a specific user.',
-    type: ReviewResponseDto,
-    isArray: true,
-  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiPaginatedResponse(
+    ReviewResponseDto,
+    'Return reviews for a specific user.',
+  )
   async findByUserId(
     @Param('userId', ParseIntPipe) userId: number,
-  ): Promise<ReviewModel[]> {
-    return this.reviewsService.getByUserId(userId);
+    @Query() { page, limit }: PaginationParamsDto,
+  ): Promise<PaginatedResultDto<ReviewModel>> {
+    return this.reviewsService.getByUserId(userId, { page, limit });
   }
 
   @Post()
@@ -86,7 +93,6 @@ export class ReviewsController {
     return this.reviewsService.create(createReviewDto);
   }
 
-  // @UseGuards(JwtGuard)
   @Patch(':id')
   @ApiOperation({ summary: 'Update a review by id' })
   @ApiResponse({
@@ -101,7 +107,7 @@ export class ReviewsController {
     return this.reviewsService.update(id, updateReviewDto);
   }
 
-  // @UseGuards(JwtGuard)
+  @UseGuards(JwtGuard)
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a review by id' })
   @ApiResponse({

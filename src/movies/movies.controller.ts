@@ -8,6 +8,7 @@ import {
   Patch,
   ParseIntPipe,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import {
@@ -16,6 +17,7 @@ import {
   ApiResponse,
   ApiBadRequestResponse,
   ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { GenreOfMovies, MoviesModel } from 'src/movies/movies.model';
 import { CreateMovieDto } from 'src/movies/dto/create-movie.dto';
@@ -23,6 +25,9 @@ import { UpdateMovieDto } from 'src/movies/dto/update-movie.dto';
 import { MovieResponseDto } from 'src/movies/dto/movie-response.dto';
 import { UserRoles } from 'src/users/users.model';
 import { JwtGuard } from 'src/auth/quards/jwt.guard';
+import { PaginationParamsDto } from 'src/common/dto/pagination-params.dto';
+import { PaginatedResultDto } from 'src/common/dto/paginated-result.dto';
+import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
 
 @ApiTags('movies')
 @Controller('movies')
@@ -31,15 +36,14 @@ export class MoviesController {
 
   @Get()
   @ApiOperation({ summary: 'Get all movies' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return all movies.',
-    type: MovieResponseDto,
-    isArray: true,
-  })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiPaginatedResponse(MovieResponseDto, 'Return all movies.')
   @ApiBadRequestResponse({ description: 'Something went wrong, try again.' })
-  async findAll(): Promise<MoviesModel[]> {
-    return this.moviesService.findAll();
+  async findAll(
+    @Query() { page, limit }: PaginationParamsDto,
+  ): Promise<PaginatedResultDto<MoviesModel>> {
+    return this.moviesService.findAll({ page, limit });
   }
 
   @Get(':id')
@@ -57,17 +61,18 @@ export class MoviesController {
 
   @Get('/genre/:genre')
   @ApiParam({ name: 'genre', required: true, enum: UserRoles })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiOperation({ summary: 'Get movies by genre' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return movies with the specified genre.',
-    type: MovieResponseDto,
-    isArray: true,
-  })
+  @ApiPaginatedResponse(
+    MovieResponseDto,
+    'Return movies with the specified genre.',
+  )
   async findByGenre(
     @Param('genre') genre: GenreOfMovies,
-  ): Promise<MoviesModel[] | []> {
-    return this.moviesService.getByGender(genre);
+    @Query() { page, limit }: PaginationParamsDto,
+  ): Promise<PaginatedResultDto<MoviesModel>> {
+    return this.moviesService.getByGender(genre, { page, limit });
   }
 
   @Post()
@@ -83,7 +88,6 @@ export class MoviesController {
     return this.moviesService.create(createMovieDto);
   }
 
-  // @UseGuards(JwtGuard)
   @Patch(':id')
   @ApiOperation({ summary: 'Update a movie by id' })
   @ApiResponse({

@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  Query,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { UserRoles, UsersModel } from 'src/users/users.model';
@@ -10,6 +11,9 @@ import { UpdateUserDto } from 'src/users/dto/update-user.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { genSalt, hash } from 'bcryptjs';
 import { ALREADY_REGISTERED_ERROR } from 'src/auth/auth.constants';
+import { PaginationParamsDto } from 'src/common/dto/pagination-params.dto';
+import { PaginatedResultDto } from 'src/common/dto/paginated-result.dto';
+import { paginate } from 'src/common/utils/pagination.util';
 
 @Injectable()
 export class UsersService {
@@ -18,13 +22,20 @@ export class UsersService {
     private readonly usersModel: typeof UsersModel,
   ) {}
 
-  async findAll(): Promise<UsersModel[]> {
-    return this.usersModel.findAll({
-      attributes: {
-        exclude: ['password'],
+  async findAll(
+    @Query() { page, limit }: PaginationParamsDto,
+  ): Promise<PaginatedResultDto<UsersModel>> {
+    return paginate(
+      this.usersModel,
+      {
+        attributes: {
+          exclude: ['password'],
+        },
+        order: [['createdAt', 'DESC']],
       },
-      order: [['createdAt', 'DESC']],
-    });
+      page,
+      limit,
+    );
   }
 
   async getOne(id: number): Promise<UsersModel | null> {
@@ -48,16 +59,24 @@ export class UsersService {
     return await this.usersModel.findOne({ where: { email } });
   }
 
-  async getByRole(role: UserRoles): Promise<UsersModel[] | []> {
-    return this.usersModel.findAll({
-      where: {
-        role,
+  async getByRole(
+    role: UserRoles,
+    { page, limit }: PaginationParamsDto,
+  ): Promise<PaginatedResultDto<UsersModel>> {
+    return paginate(
+      this.usersModel,
+      {
+        where: {
+          role,
+        },
+        attributes: {
+          exclude: ['password'],
+        },
+        order: [['createdAt', 'DESC']],
       },
-      attributes: {
-        exclude: ['password'],
-      },
-      order: [['createdAt', 'DESC']],
-    });
+      page,
+      limit,
+    );
   }
 
   async create(

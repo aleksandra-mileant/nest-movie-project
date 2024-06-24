@@ -5,25 +5,32 @@ import { MOVIES_NOT_FOUND_ERROR } from 'src/movies/movies.constants';
 import { REVIEW_NOT_FOUND_ERROR } from 'src/reviews/reviews.constants';
 import { CreateReviewDto } from 'src/reviews/dto/create-review.dto';
 import { UpdateReviewDto } from 'src/reviews/dto/update-review.dto';
-import { MoviesModel } from 'src/movies/movies.model';
-import { UsersModel } from 'src/users/users.model';
 import { USERS_NOT_FOUND_ERROR } from 'src/users/users.constants';
+import { PaginationParamsDto } from 'src/common/dto/pagination-params.dto';
+import { PaginatedResultDto } from 'src/common/dto/paginated-result.dto';
+import { paginate } from 'src/common/utils/pagination.util';
+import { MoviesService } from 'src/movies/movies.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class ReviewsService {
   constructor(
     @InjectModel(ReviewModel)
     private readonly reviewModel: typeof ReviewModel,
-    @InjectModel(MoviesModel)
-    private readonly movieModel: typeof MoviesModel,
-    @InjectModel(UsersModel)
-    private readonly usersModel: typeof UsersModel,
+    private readonly moviesService: MoviesService,
+    private readonly usersService: UsersService,
   ) {}
 
-  async findAll(): Promise<ReviewModel[]> {
-    return this.reviewModel.findAll({
-      order: [['createdAt', 'DESC']],
-    });
+  async findAll({
+    page,
+    limit,
+  }: PaginationParamsDto): Promise<PaginatedResultDto<ReviewModel>> {
+    return paginate(
+      this.reviewModel,
+      { order: [['createdAt', 'DESC']] },
+      page,
+      limit,
+    );
   }
 
   async getOne(id: number): Promise<ReviewModel | null> {
@@ -40,32 +47,44 @@ export class ReviewsService {
     return review;
   }
 
-  async getByMovieId(movieId: number): Promise<ReviewModel[]> {
-    return this.reviewModel.findAll({
-      where: {
-        movieId,
+  async getByMovieId(
+    movieId: number,
+    { page, limit }: PaginationParamsDto,
+  ): Promise<PaginatedResultDto<ReviewModel>> {
+    return paginate(
+      this.reviewModel,
+      {
+        where: { movieId },
+        order: [['createdAt', 'DESC']],
       },
-      order: [['createdAt', 'DESC']],
-    });
+      page,
+      limit,
+    );
   }
 
-  async getByUserId(userId: number): Promise<ReviewModel[]> {
-    return this.reviewModel.findAll({
-      where: {
-        userId,
+  async getByUserId(
+    userId: number,
+    { page, limit }: PaginationParamsDto,
+  ): Promise<PaginatedResultDto<ReviewModel>> {
+    return paginate(
+      this.reviewModel,
+      {
+        where: { userId },
+        order: [['createdAt', 'DESC']],
       },
-      order: [['createdAt', 'DESC']],
-    });
+      page,
+      limit,
+    );
   }
 
   async create(createReviewDto: CreateReviewDto): Promise<ReviewModel | null> {
-    const movie = await this.movieModel.findByPk(createReviewDto.movieId);
+    const movie = await this.moviesService.getOne(createReviewDto.movieId);
 
     if (!movie) {
       throw new NotFoundException(MOVIES_NOT_FOUND_ERROR);
     }
 
-    const user = await this.usersModel.findByPk(createReviewDto.userId);
+    const user = await this.usersService.getOne(createReviewDto.userId);
 
     if (!user) {
       throw new NotFoundException(USERS_NOT_FOUND_ERROR);
