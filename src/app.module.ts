@@ -11,6 +11,7 @@ import { UsersModule } from './users/users.module';
 import { UsersModel } from 'src/users/users.model';
 import { ReviewsModule } from './reviews/reviews.module';
 import { ReviewModel } from 'src/reviews/reviews.model';
+import { FilesModule } from 'src/files/files.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { ReviewModel } from 'src/reviews/reviews.model';
     AuthModule,
     UsersModule,
     ReviewsModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
