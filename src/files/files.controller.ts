@@ -2,39 +2,57 @@ import {
   Controller,
   HttpCode,
   Post,
-  UploadedFile,
   UseGuards,
-  UseInterceptors,
+  Req,
+  Get,
+  Param,
+  Res,
 } from '@nestjs/common';
-import { FileInterceptor, FilesInterceptor } from "@nestjs/platform-express";
-import { FileElementResponse } from './dto/file-element.reposonse';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import { FilesService } from './files.service';
+import { FileElementResponse } from 'src/files/dto/file-reposonse.dto';
 import { JwtGuard } from 'src/auth/quards/jwt.guard';
-import { MFile } from 'src/files/mfile.class';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { createReadStream } from 'fs';
+import { join } from 'path';
 
+@ApiTags('files')
 @Controller('files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
   @Post('upload')
+  @ApiOperation({ summary: 'Upload file or image' })
   @HttpCode(200)
   @UseGuards(JwtGuard)
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(
-    @UploadedFile() file: Express.Multer.File,
-  ): Promise<FileElementResponse[]> {
-    const saveArray: MFile[] = [new MFile(file)];
+  @ApiResponse({
+    status: 200,
+    description: 'The file has been successfully uploaded.',
+    type: FileElementResponse,
+  })
+  async uploadFile(@Req() req: FastifyRequest): Promise<FileElementResponse[]> {
+    return this.filesService.handleFileUpload(req);
+  }
 
-    if (file.mimetype.includes('image')) {
-      const buffer = await this.filesService.convertToWebP(file.buffer);
-      saveArray.push(
-        new MFile({
-          originalname: `${file.originalname.split('.')[0]}.webp`,
-          buffer,
-        }),
-      );
-    }
-
-    return this.filesService.saveFiles(saveArray);
+  @ApiOperation({ summary: 'Get a file by filename' })
+  @ApiParam({
+    name: 'date',
+    required: true,
+    description: 'Date folder of the file to retrieve',
+  })
+  @ApiParam({
+    name: 'filename',
+    required: true,
+    description: 'Name of the file to retrieve',
+  })
+  @Get('static/:date/:filename')
+  async getFile(
+    @Param('date') date: string,
+    @Param('filename') filename: string,
+    @Res() res: FastifyReply,
+  ) {
+    const filePath = join('uploads', date, filename);
+    res.type('image/webp');
+    return res.send(createReadStream(filePath));
   }
 }

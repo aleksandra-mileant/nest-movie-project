@@ -8,12 +8,15 @@ import {
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ServerConfig } from 'src/configs/server.config';
+import fastifyMultipart from 'fastify-multipart';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
   );
+
+  await app.register(fastifyMultipart);
 
   app.useGlobalPipes(
     new ValidationPipe({
