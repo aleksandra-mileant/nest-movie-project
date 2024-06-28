@@ -2,7 +2,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
-import { UsersModel } from 'src/users/users.model';
+import { UserRoles } from 'src/users/users.model';
 
 // https://docs.nestjs.com/recipes/passport
 
@@ -17,8 +17,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate({ email }: Pick<UsersModel, 'email'>): Promise<string> {
-    // разбираем то, что зашифровали в логине
-    return email;
+  async validate(payload: {
+    email: string;
+    id: any;
+    role: UserRoles;
+  }): Promise<{ email: string; id: any; role: UserRoles }> {
+    return payload; // Return the entire payload
   }
 }

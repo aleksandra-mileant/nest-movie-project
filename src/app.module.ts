@@ -12,6 +12,7 @@ import { UsersModel } from 'src/users/users.model';
 import { ReviewsModule } from './reviews/reviews.module';
 import { ReviewModel } from 'src/reviews/reviews.model';
 import { FilesModule } from 'src/files/files.module';
+import { FileModel } from 'src/files/file.model';
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import { FilesModule } from 'src/files/files.module';
       database: process.env.DATABASE_NAME,
       autoLoadModels: true,
       synchronize: true,
-      models: [MoviesModel, UsersModel, ReviewModel],
+      models: [MoviesModel, UsersModel, ReviewModel, FileModel],
     }),
     MoviesModule,
     AuthModule,

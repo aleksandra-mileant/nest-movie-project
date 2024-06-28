@@ -14,6 +14,7 @@ import { ALREADY_REGISTERED_ERROR } from 'src/auth/auth.constants';
 import { PaginationParamsDto } from 'src/common/dto/pagination-params.dto';
 import { PaginatedResultDto } from 'src/common/dto/paginated-result.dto';
 import { paginate } from 'src/common/utils/pagination.util';
+import { FileModel } from 'src/files/file.model';
 
 @Injectable()
 export class UsersService {
@@ -32,6 +33,7 @@ export class UsersService {
           exclude: ['password'],
         },
         order: [['createdAt', 'DESC']],
+        include: [FileModel],
       },
       page,
       limit,
@@ -46,6 +48,7 @@ export class UsersService {
       attributes: {
         exclude: ['password'],
       },
+      include: [FileModel],
     });
 
     if (!user) {
@@ -73,6 +76,7 @@ export class UsersService {
           exclude: ['password'],
         },
         order: [['createdAt', 'DESC']],
+        include: [FileModel],
       },
       page,
       limit,

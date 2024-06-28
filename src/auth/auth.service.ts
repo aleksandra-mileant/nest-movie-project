@@ -36,7 +36,8 @@ export class AuthService {
   async login(email: string): Promise<{ access_token: string }> {
     // в payload мы передаем данные, которые будут шифроваться в токен
     // можно шифровать не только email и password, хоть всю модель юзера
-    const payload = { email };
+    const user = await this.usersService.getByEmail(email);
+    const payload = { email: user.email, id: user.id, role: user.role };
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
