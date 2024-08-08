@@ -20,11 +20,15 @@ import { PaginationParamsDto } from 'src/common/dto/pagination-params.dto';
 import { PaginatedResultDto } from 'src/common/dto/paginated-result.dto';
 import { ApiPaginatedResponse } from 'src/common/decorators/api-paginated-response.decorator';
 import { JwtGuard } from 'src/auth/quards/jwt.guard';
+import { TelegramService } from 'src/telegram/telegram.service';
 
 @ApiTags('reviews')
 @Controller('reviews')
 export class ReviewsController {
-  constructor(private readonly reviewsService: ReviewsService) {}
+  constructor(
+    private readonly reviewsService: ReviewsService,
+    private readonly telegramService: TelegramService,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Get all reviews' })
@@ -91,6 +95,17 @@ export class ReviewsController {
     @Body() createReviewDto: CreateReviewDto,
   ): Promise<ReviewModel | null> {
     return this.reviewsService.create(createReviewDto);
+  }
+
+  @Post('notify')
+  @ApiOperation({ summary: 'Send a notification' })
+  async notify(@Body() createReviewDto: CreateReviewDto): Promise<void> {
+    const message =
+      `Content: ${createReviewDto.content} ` +
+      `With rating: ${createReviewDto.rating} ` +
+      `For ${createReviewDto.movieId} movie ` +
+      `From ${createReviewDto.userId} user`;
+    return this.telegramService.sendMessage(message);
   }
 
   @Patch(':id')

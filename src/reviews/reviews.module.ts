@@ -5,12 +5,14 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { ReviewModel } from 'src/reviews/reviews.model';
 import { MoviesModule } from 'src/movies/movies.module';
 import { UsersModule } from 'src/users/users.module';
+import { TelegramModule } from 'src/telegram/telegram.module';
 
 @Module({
   imports: [
     SequelizeModule.forFeature([ReviewModel]),
     MoviesModule,
     UsersModule,
+    TelegramModule,
   ],
   providers: [ReviewsService],
   controllers: [ReviewsController],
